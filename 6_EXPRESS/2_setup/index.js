@@ -6,11 +6,44 @@ const path = require("path");
 
 const basePath = path.join(__dirname, "templates");
 
-app.get("/user/:id", (req, res) => {
-  const id = req.params.id;
+// ler o body
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
-  //Leituras da tabela users, resgatar usuário do banco
-  console.log(`Estamos buscando pelo usuário: ${id}`);
+app.use(express.json());
+
+var checkAuth = function (req, res, next) {
+  req.authStatus = true;
+
+  if (req.authStatus) {
+    console.log("Está logado, pode continuar");
+    next();
+  } else {
+    console.log("Não está logado, faça o login para continuar!");
+  }
+};
+
+app.use(checkAuth);
+
+app.get("/users/add", (req, res) => {
+  res.sendFile(`${basePath}/userform.html`);
+});
+
+app.post("/users/save", (req, res) => {
+  console.log(req.body);
+  const name = req.body.name;
+  const age = req.body.age;
+
+  console.log(name);
+  console.log(age);
+});
+
+// antes do /
+app.get("/users/:id", (req, res) => {
+  console.log(`Carregando usuário: ${req.params.id}`);
 
   res.sendFile(`${basePath}/users.html`);
 });
